@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./static/style/index.css" type="text/css">
+    <title>才风停车</title>
+</head>
+<body>
+    <div class="loading">  
+            <span></span>  
+            <span></span>  
+            <span></span>  
+            <span></span>  
+            <span></span>  
+    </div>  
+    <div id="mainContent" style="display: none;">
+        <img src="./static/image/LOGO@2x.png" class="logo" alt="">
+        <div class="title1">扫码成功</div>
+        <div class="title2">您好，欢迎使用才风停车</div>
+        <div style="width: 100vw;display: flex;justify-content: center;margin-top: 50px;margin-bottom: 70px;">
+            <img src="./static/image/bg.png" class="bgImg" alt="">
+        </div>
+        <div style="width: 100vw;display: flex;justify-content: center;">
+            <div id="wxmini"></div>
+        </div>
+    </div>
+    <script src="./js/utils/index.js"></script>
+    <script src="./js/jweixin.js"></script>
+    <script src="./js/jquery.js"></script>
+    <script>
+        $(document.body).css("background", "#488cf5")
+        const carpark_checkpoint_id = getQueryVariable('carpark_checkpoint_id')
+        if (/MicroMessenger/.test(window.navigator.userAgent)) {
+            let wechaturl = window.location.href.split('#')[0];
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                data: {
+                    url: wechaturl
+                },
+                url: 'https://park.cfeng.wang/auth/createJumpToWxMinData',
+                success: function (res) {
+                    wx.config({
+                        debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。  
+                        appId: res.data.appId, // 必填，公众号的唯一标识，填自己的！  
+                        timestamp: res.data.timestamp, // 必填，生成签名的时间戳，刚才接口拿到的数据  
+                        nonceStr: res.data.noncestr, // 必填，生成签名的随机串  
+                        signature: res.data.signature, // 必填，签名  
+                        jsApiList: ['chooseImage', 'previewImage'],
+                        openTagList: ['wx-open-launch-weapp'] // 跳转小程序时必填  
+                    });
+                    $('#mainContent').css('display','block');
+                    $('.loading').css('display','none');
+                    
+                    const htmlContent = '' +
+                        `<wx-open-launch-weapp id="launch-btn" username="gh_421c73099590" path="/pages/my/replacePay/getClipboard?carpark_checkpoint_id=${carpark_checkpoint_id}">\n` +
+                        '    <script type="text/wxtag-template">\n' +
+                        '        <style>.btn { padding: 12px;width: 295px;height: 50px;background: #FFFFFF;border-radius: 6px;border:none;color: #488CF5;font-size: 18px;font-weight: 500;}</style>\n' +
+                        '        <button class="btn">查看账单</button>\n' +
+                        '    <\/script>\n' +
+                        '</wx-open-launch-weapp>'
+
+                    $('#wxmini').html(htmlContent)
+                }
+            })
+        } else if (/AlipayClient/.test(window.navigator.userAgent)) {
+            alert('请使用微信扫码支付')
+            // const urls = `https://park.cfeng.wang?carpark_checkpoint_id=${carpark_checkpoint_id}`
+            // document.location.href = urls
+        }
+
+
+
+
+
+
+        console.log(getQueryVariable('carpark_checkpoint_id'));
+
+    </script>
+</body>
+
+</html>
