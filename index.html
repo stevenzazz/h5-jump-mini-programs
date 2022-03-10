@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./static/style/index.css" type="text/css">
-    <title>才风停车</title>
+    <title>SummerCode</title>
 </head>
 <body>
     <div class="loading">  
@@ -19,7 +19,7 @@
     <div id="mainContent" style="display: none;">
         <img src="./static/image/LOGO@2x.png" class="logo" alt="">
         <div class="title1">扫码成功</div>
-        <div class="title2">您好，欢迎使用才风停车</div>
+        <div class="title2">您好，SummerCode</div>
         <div style="width: 100vw;display: flex;justify-content: center;margin-top: 50px;margin-bottom: 70px;">
             <img src="./static/image/bg.png" class="bgImg" alt="">
         </div>
@@ -27,21 +27,25 @@
             <div id="wxmini"></div>
         </div>
     </div>
-    <script src="./js/utils/index.js"></script>
+    <script src="./js/utils/index.js"></script> 
+    <!-- jweixin引入 -->
     <script src="./js/jweixin.js"></script>
+    <!-- jquery引入 -->
     <script src="./js/jquery.js"></script>
     <script>
         $(document.body).css("background", "#488cf5")
         const carpark_checkpoint_id = getQueryVariable('carpark_checkpoint_id')
         if (/MicroMessenger/.test(window.navigator.userAgent)) {
             let wechaturl = window.location.href.split('#')[0];
+            // 向后端请求公众号的信息 如果页面中 不出现跳转的按钮 大部分原因都是因为返回的信息不正确
+            // 需要传一个当前的url给接口
             $.ajax({
                 type: "GET",
                 dataType: "json",
                 data: {
                     url: wechaturl
                 },
-                url: 'https://park.cfeng.wang/auth/createJumpToWxMinData',
+                url: 'https://api.xxx.com',
                 success: function (res) {
                     wx.config({
                         debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。  
@@ -54,31 +58,26 @@
                     });
                     $('#mainContent').css('display','block');
                     $('.loading').css('display','none');
-                    
                     const htmlContent = '' +
-                        `<wx-open-launch-weapp id="launch-btn" username="gh_421c73099590" path="/pages/my/replacePay/getClipboard?carpark_checkpoint_id=${carpark_checkpoint_id}">\n` +
+                        `<wx-open-launch-weapp id="launch-btn" username="gh_appid" path="/pages/index/index?carpark_checkpoint_id=${carpark_checkpoint_id}">\n` +
                         '    <script type="text/wxtag-template">\n' +
                         '        <style>.btn { padding: 12px;width: 295px;height: 50px;background: #FFFFFF;border-radius: 6px;border:none;color: #488CF5;font-size: 18px;font-weight: 500;}</style>\n' +
-                        '        <button class="btn">查看账单</button>\n' +
+                        '        <button class="btn" id="button">查看账单</button>\n' +
                         '    <\/script>\n' +
                         '</wx-open-launch-weapp>'
-
+                    // 将wx-open-launch-weapp标签动态渲染到dom中 如果无需动态传参 则无需动态渲染 直接接在html即可
                     $('#wxmini').html(htmlContent)
                 }
             })
         } else if (/AlipayClient/.test(window.navigator.userAgent)) {
-            alert('请使用微信扫码支付')
-            // const urls = `https://park.cfeng.wang?carpark_checkpoint_id=${carpark_checkpoint_id}`
-            // document.location.href = urls
+            // 跳转支付宝小程序没有微信那么麻烦 只需要填写正确的信息即可、
+            const appid = 3333333  // 支付宝小程序appid
+            const page = 'pages/index/index' // 需要跳转到的路径
+            const query = encodeURIComponent(`a=${carpark_checkpoint_id}&b=1&c=2`) // 传参
+            window.location.href=`https://ds.alipay.com/?scheme=` + encodeURIComponent(`alipays://platformapi/startapp?appId=${appid}&page=${page}&query=${query}`) 
+        } else {
+            // alert('请使用微信或者支付扫码')
         }
-
-
-
-
-
-
-        console.log(getQueryVariable('carpark_checkpoint_id'));
-
     </script>
 </body>
 
